@@ -6,4 +6,5 @@
 */Saved
 BuildingEscape/Content/StarterContent/
 # VS generated files
+*/.vs/
 *VC.db
