@@ -1,10 +1,8 @@
-# Unreal generates files
 */Build
 */Binaries
 */DerivedDataCache
 */Intermediate
 */Saved
 BuildingEscape/Content/StarterContent/
-# VS generated files
 */.vs/
 *VC.db
