@@ -73,7 +73,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No, nothing here"));
+		UE_LOG(LogTemp, Warning, TEXT("No, nothing here,yup[,yup"));
 	}
 	
 	/*UE_LOG(LogTemp, Warning, TEXT("Im at location: %s and rotation: %s!"), 
