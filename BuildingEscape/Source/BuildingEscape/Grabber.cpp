@@ -3,6 +3,8 @@
 #include "Grabber.h"
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
+#include "Components/PrimitiveComponent.h"
+
 
 
 #define OUT
@@ -13,8 +15,6 @@ UGrabber::UGrabber()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -22,15 +22,96 @@ UGrabber::UGrabber()
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
-	Reach = 100.f;
+		
+	FindPhysicsHandleComponent();
+	SetupInputComponent();
 	
 }
 
+void UGrabber::FindPhysicsHandleComponent()
+{
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle)
+	{
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Can`t find component on %s"), *GetOwner()->GetName())
+	}
+}
+
+void UGrabber::SetupInputComponent()
+{
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("There is InputComponent on %s"), *GetOwner()->GetName())
+
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Can`t find InputComponent on %s"), *GetOwner()->GetName())
+	}
+}
+
+
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Try to grab"))
+
+	//Line trace and see if we reach physics body
+	auto HitResult = GetFirstPhysicsBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
+	if (ActorHit)
+	{
+		PhysicsHandle->GrabComponent(
+			ComponentToGrab,
+			NAME_None,
+			ComponentToGrab-> GetOwner()->GetActorLocation(),
+			
+			true //allow rotation
+		);
+	}
+	
+}
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Release it!"))
+
+		PhysicsHandle->ReleaseComponent();
+
+	//TODO release physics handle
+}
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation
+	);
+
+	///draw a line for tracing
+	FVector LineTraceDirection = PlayerViewPointRotation.Vector();
+	FVector LineTraceEnd = PlayerViewPointLocation + LineTraceDirection * Reach;
+	/// if physics handle is attached
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		/// move object we grab
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
+}
+
+FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
+{
 
 	/// get player viewpoint this tick
 	FVector PlayerViewPointLocation;
@@ -39,22 +120,12 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		OUT PlayerViewPointLocation,
 		OUT PlayerViewPointRotation
 	);
-	
+
 	///draw a line for tracing
 	FVector LineTraceDirection = PlayerViewPointRotation.Vector();
 	FVector LineTraceEnd = PlayerViewPointLocation + LineTraceDirection * Reach;
-	DrawDebugLine(
-		GetWorld(),
-		PlayerViewPointLocation,
-		LineTraceEnd,
-		FColor(255, 0, 0),
-		false,
-		0.f,
-		0.f,
-		10.f
-	);
 
-	FCollisionQueryParams TraceParameters (FName(TEXT("")), false, GetOwner());
+	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
 	///
 	FHitResult Hit;
 
@@ -65,23 +136,15 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParameters
 	);
-	
+
 	// see what we hit
 	if (Hit.GetActor())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Im looking at: %s"), *Hit.Actor->GetName());
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No, nothing here,yup[,yup"));
-	}
-	
-	/*UE_LOG(LogTemp, Warning, TEXT("Im at location: %s and rotation: %s!"), 
-		*PlayerViewPointLocation.ToString(), 
-		*PlayerViewPointRotation.ToString())*/
+
 	// ray-cast out to reach distance
-
-
-
+	return Hit;
 }
+
 

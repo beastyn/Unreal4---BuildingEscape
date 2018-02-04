@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "DrawDebugHelpers.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
+#include "Components/InputComponent.h"
 #include "Grabber.generated.h"
 
 
@@ -27,6 +29,22 @@ public:
 
 private:
 	//length for grabbing view
-	float Reach;
-	
+	float Reach = 100.f;
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	UInputComponent* InputComponent = nullptr;
+
+	///Fins handle component if we have it
+	void FindPhysicsHandleComponent();
+
+	///Setup attached input component
+	void SetupInputComponent();
+
+	///return JIT for first physics body we reach
+	FHitResult GetFirstPhysicsBodyInReach() const;
+
+	///Ray-cast and grab with hit
+	void Grab();
+	void Release();
+
+
 };
