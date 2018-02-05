@@ -39,10 +39,14 @@ private:
 	///Setup attached input component
 	void SetupInputComponent();
 
-	///return JIT for first physics body we reach
-	FHitResult GetFirstPhysicsBodyInReach() const;
+	///Calculate end of trace line for getting reached physics body
 
-	///Ray-cast and grab with hit
+	FVector GetLineTraceEnd();
+	FVector GetLineTraceStart();
+	///return JIT for first physics body we reach
+	FHitResult GetFirstPhysicsBodyInReach();
+
+	///Ray-cast and grab with HitResult
 	void Grab();
 	void Release();
 
