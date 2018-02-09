@@ -24,8 +24,11 @@ void UDoorOpen::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
-	DefaultAngle = GetOwner()->GetActorRotation();
+	if (!PressurePlate)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Can`t find pressure plate on %s"), *GetOwner()->GetName())
+	}
+	DefaultAngle = GetOwner()->GetActorRotation().Yaw;
 	
 	
 	
@@ -34,13 +37,14 @@ void UDoorOpen::BeginPlay()
 
 void UDoorOpen::DoorOpen()
 {
-	Owner = GetOwner();
-	Owner->SetActorRotation(FRotator(0.f, DefaultAngle.Yaw + OpenAngle, 0.f));
+	//Owner = GetOwner();
+	//Owner->SetActorRotation(FRotator(0.f, DefaultAngle.Yaw + OpenAngle, 0.f));
+	OnOpenRequest.Broadcast(DefaultAngle);
 }
 void UDoorOpen::DoorClose()
 {
 	Owner = GetOwner();
-	Owner->SetActorRotation(FRotator(0.f, DefaultAngle.Yaw, 0.f));
+	Owner->SetActorRotation(FRotator(0.f, DefaultAngle, 0.f));
 }
 
 // Called every frame
@@ -69,6 +73,7 @@ float UDoorOpen::GetTotalMassOnPlate()
 	//find all the overlaping masses and sum their mass
 	
 	TArray<AActor*> OverlappingActors;
+	if (!PressurePlate) { return TotalMass; }
 	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
 	for (const auto* OverlapingActor : OverlappingActors)
 	{
