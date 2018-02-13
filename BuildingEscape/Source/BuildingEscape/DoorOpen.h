@@ -37,12 +37,21 @@ private:
 		
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume * PressurePlate = nullptr;
+	
+	UPROPERTY(EditAnywhere)
+		TArray <ATriggerVolume*> CustomTriggerVolumes = { nullptr, nullptr, nullptr, nullptr};
+	
+	UPROPERTY(EditAnywhere)
+		TArray <AActor*> OverlapTriggerStuffs = {nullptr, nullptr, nullptr, nullptr};
+	
+	TArray <AActor*> CheckOverlapTriggerStuffs = { nullptr, nullptr, nullptr, nullptr };
 
 	UPROPERTY(EditAnywhere)
 		float TriggerMass = 80.f;
 	
 	AActor * Owner = nullptr;
 	float GetTotalMassOnPlate();
+	bool CheckStuffPlace();
 
 	
 };

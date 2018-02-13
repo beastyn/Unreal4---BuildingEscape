@@ -28,7 +28,23 @@ void UDoorOpen::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("Can`t find pressure plate on %s"), *GetOwner()->GetName())
 	}
+	for (const auto* TriggerVolume : CustomTriggerVolumes)
+	{
+		for (const auto* OverlapTriggerStuff : OverlapTriggerStuffs)
+		{
+
+			if (!TriggerVolume && !OverlapTriggerStuff)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("You dont have trigger volumes and overlaping stuffs!"))
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("You have %s and %s"), *TriggerVolume->GetName(), *OverlapTriggerStuff->GetName())
+			}
+		}
 	}
+
+}
 
 // Called every frame
 void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,6 +60,7 @@ void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		OnClose.Broadcast();
 	}
+	CheckStuffPlace();
 }
 
 float UDoorOpen::GetTotalMassOnPlate()
@@ -63,4 +80,26 @@ float UDoorOpen::GetTotalMassOnPlate()
 	//UE_LOG(LogTemp, Warning, TEXT("TotalMass on Pressure Plate is %f"), TotalMass)
 
 	return TotalMass;
+}
+
+bool UDoorOpen::CheckStuffPlace()
+{
+	int32 i = 0;
+	int32 CountRightPlaces = 0;
+	for (const auto* TriggerVolume : CustomTriggerVolumes)
+	{
+		TriggerVolume->GetOverlappingActors(OUT CheckOverlapTriggerStuffs);
+		for (const auto* CheckOverlapTriggerStuff : CheckOverlapTriggerStuffs)
+		{
+			if (CheckOverlapTriggerStuff == OverlapTriggerStuffs[i])
+			{
+				CountRightPlaces++;
+			}
+		}
+
+		i++;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("On right place is %i"), CountRightPlaces)
+	return false;
+
 }
