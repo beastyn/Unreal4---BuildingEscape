@@ -37,14 +37,17 @@ private:
 		
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume * PressurePlate = nullptr;
+
+	UPROPERTY(EditAnywhere)
+		AActor* DoorLight = nullptr;
 	
 	UPROPERTY(EditAnywhere)
-		TArray <ATriggerVolume*> CustomTriggerVolumes = { nullptr, nullptr, nullptr, nullptr};
+		TArray <ATriggerVolume*> CustomTriggerVolumes = { nullptr, nullptr, nullptr, nullptr, nullptr};
 	
 	UPROPERTY(EditAnywhere)
-		TArray <AActor*> OverlapTriggerStuffs = {nullptr, nullptr, nullptr, nullptr};
+		TArray <AActor*> OverlapTriggerStuffs = {nullptr, nullptr, nullptr, nullptr,nullptr};
 	
-	TArray <AActor*> CheckOverlapTriggerStuffs = { nullptr, nullptr, nullptr, nullptr };
+	TArray <AActor*> CheckOverlapTriggerStuffs = { nullptr, nullptr, nullptr, nullptr, nullptr};
 
 	UPROPERTY(EditAnywhere)
 		float TriggerMass = 80.f;
@@ -52,6 +55,7 @@ private:
 	AActor * Owner = nullptr;
 	float GetTotalMassOnPlate();
 	bool CheckStuffPlace();
+	void ChangeDoorLightColor();
 
 	
 };

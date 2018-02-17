@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/SpotLightComponent.h"
 
 #define OUT
 
@@ -30,18 +31,19 @@ void UDoorOpen::BeginPlay()
 	}
 	for (const auto* TriggerVolume : CustomTriggerVolumes)
 	{
-		for (const auto* OverlapTriggerStuff : OverlapTriggerStuffs)
+		if (!TriggerVolume)
 		{
-
-			if (!TriggerVolume && !OverlapTriggerStuff)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("You dont have trigger volumes and overlaping stuffs!"))
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("You have %s and %s"), *TriggerVolume->GetName(), *OverlapTriggerStuff->GetName())
-			}
+			UE_LOG(LogTemp, Warning, TEXT("You dont have trigger volumes!"))
 		}
+			
+	}
+	for (const auto* OverlapTriggerStuff : OverlapTriggerStuffs)
+	{
+		if (!OverlapTriggerStuff)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("You dont have overlaping stuffs!"))
+		}
+		
 	}
 
 }
@@ -52,15 +54,17 @@ void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// open door and close door
-	if (GetTotalMassOnPlate() >= TriggerMass) 
+	if (CheckStuffPlace())
 	{
 		OnOpen.Broadcast();
+		ChangeDoorLightColor();
 	}
 	else
 	{
 		OnClose.Broadcast();
+
 	}
-	CheckStuffPlace();
+	
 }
 
 float UDoorOpen::GetTotalMassOnPlate()
@@ -99,7 +103,27 @@ bool UDoorOpen::CheckStuffPlace()
 
 		i++;
 	}
+	if (CountRightPlaces == 5)
+	{
+		return true;
+	}
+	
 	UE_LOG(LogTemp, Warning, TEXT("On right place is %i"), CountRightPlaces)
+	
 	return false;
+}
 
+void UDoorOpen::ChangeDoorLightColor()
+{
+	if (!DoorLight)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("There is no light on door!"))
+	}
+	else
+	{
+		DoorLight->FindComponentByClass<USpotLightComponent>()->SetLightColor(FLinearColor(0.f, 1.f, 0.f, 0.f));
+		
+	}
+	
+	return;
 }
